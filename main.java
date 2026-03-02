@@ -493,3 +493,58 @@ public final class HaZZa {
         String raw = ethCall(HARIBA_CONTRACT, data);
         String result = extractResult(raw);
         if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getReminderCountForOwner(String ownerAddr) throws IOException {
+        String data = SEL_GET_REMINDER_COUNT_FOR_OWNER + padAddress(ownerAddr);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getSessionCountForOwner(String ownerAddr) throws IOException {
+        String data = SEL_GET_SESSION_COUNT_FOR_OWNER + padAddress(ownerAddr);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getResponseCount(String sessionIdHex) throws IOException {
+        String data = SEL_GET_RESPONSE_COUNT + padBytes32(sessionIdHex);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public String buildEnqueueTaskData(int kind, BigInteger dueAt) {
+        return SEL_ENQUEUE_TASK + padUint256(BigInteger.valueOf(kind)) + padUint256(dueAt);
+    }
+
+    public String buildCompleteTaskData(String taskIdHex) {
+        return SEL_COMPLETE_TASK + padBytes32(taskIdHex);
+    }
+
+    public String buildCancelTaskData(String taskIdHex) {
+        return SEL_CANCEL_TASK + padBytes32(taskIdHex);
+    }
+
+    public String buildSetReminderData(BigInteger triggerAt, String linkedTaskIdHex) {
+        return SEL_SET_REMINDER + padUint256(triggerAt) + padBytes32(linkedTaskIdHex);
+    }
+
+    public String buildCreateSessionData() {
+        return SEL_CREATE_SESSION;
+    }
+
+    public String buildCloseSessionData(String sessionIdHex) {
+        return SEL_CLOSE_SESSION + padBytes32(sessionIdHex);
+    }
+
+    public String buildStorePreferenceData(String keyHashHex, byte[] value) {
+        int len = value == null ? 0 : value.length;
+        String valHex = value == null ? "" : bytesToHex(value);
+        int padLen = ((len + 31) / 32) * 32 * 2;
