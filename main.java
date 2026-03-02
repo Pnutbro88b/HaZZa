@@ -823,3 +823,58 @@ public final class HaZZa {
 
     public void runRegisterIntentInteractive(Scanner sc) {
         System.out.print("Intent type (0-7): ");
+        int t = Integer.parseInt(sc.nextLine().trim());
+        String data = buildRegisterIntentData(t);
+        System.out.println("Calldata: " + data.substring(0, Math.min(80, data.length())) + "...");
+    }
+
+    public void runDepositInteractive(Scanner sc) {
+        System.out.print("Amount (wei) to send with tx: ");
+        String amt = sc.nextLine().trim();
+        System.out.println("Use buildDepositData() and send value=" + amt + " wei. Calldata: " + buildDepositData());
+    }
+
+    public void loadConfig() {
+        try {
+            Path p = Paths.get(CONFIG_FILENAME);
+            if (!Files.exists(p)) return;
+            List<String> lines = Files.readAllLines(p);
+            for (String line : lines) {
+                line = line.trim();
+                if (line.startsWith("#") || line.isEmpty()) continue;
+                int eq = line.indexOf('=');
+                if (eq <= 0) continue;
+                String key = line.substring(0, eq).trim();
+                String val = line.substring(eq + 1).trim();
+                if ("rpc".equalsIgnoreCase(key)) setRpcUrl(val);
+            }
+        } catch (IOException e) {}
+    }
+
+    public void saveConfig() {
+        try {
+            String content = "# HaZZa config\nrpc=" + rpcUrl + "\ncontract=" + HARIBA_CONTRACT + "\n";
+            Files.writeString(Paths.get(CONFIG_FILENAME), content);
+        } catch (IOException e) {
+            System.err.println("Could not save config: " + e.getMessage());
+        }
+    }
+
+    public void printContractInfo() {
+        System.out.println("Hariba: " + HARIBA_CONTRACT);
+        System.out.println("Steward: " + formatAddressShort(HRB_STEWARD));
+        System.out.println("Vault: " + formatAddressShort(HRB_VAULT));
+        System.out.println("Oracle: " + formatAddressShort(HRB_ORACLE));
+        System.out.println("Relay: " + formatAddressShort(HRB_RELAY));
+    }
+
+    public List<TaskView> getPendingTasksOnly(int offset, int limit) throws IOException {
+        List<TaskView> all = getTaskViewsBatch(offset, limit * 2);
+        return all.stream().filter(v -> v.status == TASK_STATUS_PENDING).limit(limit).collect(Collectors.toList());
+    }
+
+    public List<TaskView> getCompletedTasksOnly(int offset, int limit) throws IOException {
+        List<TaskView> all = getTaskViewsBatch(offset, limit * 2);
+        return all.stream().filter(v -> v.status == TASK_STATUS_COMPLETED).limit(limit).collect(Collectors.toList());
+    }
+
