@@ -933,3 +933,58 @@ public final class HaZZa {
             this.tasks = tasks != null ? new ArrayList<>(tasks) : Collections.emptyList();
             this.reminders = reminders != null ? new ArrayList<>(reminders) : Collections.emptyList();
             this.stats = stats;
+        }
+    }
+
+    public Snapshot captureSnapshot(int maxTasks, int maxReminders) throws IOException {
+        List<TaskView> tasks = getTaskViewsBatch(0, maxTasks);
+        List<ReminderView> reminders = getReminderViewsBatch(0, maxReminders);
+        PlatformStats stats = getPlatformStats();
+        return new Snapshot(System.currentTimeMillis(), tasks, reminders, stats);
+    }
+
+    public void printSnapshot(Snapshot snap) {
+        System.out.println("--- PA snapshot @ " + new Date(snap.timestamp) + " ---");
+        System.out.println("Tasks: " + snap.tasks.size());
+        for (TaskView v : snap.tasks) printTaskView(v);
+        System.out.println("Reminders: " + snap.reminders.size());
+        for (ReminderView v : snap.reminders) printReminderView(v);
+        if (snap.stats != null) System.out.println("Platform: tasks=" + snap.stats.taskCount + " paused=" + snap.stats.paused);
+    }
+
+    public void runSnapshot() {
+        try {
+            Snapshot snap = captureSnapshot(16, 16);
+            printSnapshot(snap);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void exportTasksToCsv(String filepath, int maxTasks) throws IOException {
+        List<TaskView> list = getTaskViewsBatch(0, maxTasks);
+        StringBuilder sb = new StringBuilder();
+        sb.append("taskId,owner,kind,dueAt,status,createdAt\n");
+        for (TaskView v : list) {
+            sb.append(v.taskId).append(",").append(v.owner).append(",").append(v.kind).append(",")
+              .append(v.dueAt).append(",").append(v.status).append(",").append(v.createdAt).append("\n");
+        }
+        Files.writeString(Paths.get(filepath), sb.toString());
+        System.out.println("Exported " + list.size() + " tasks to " + filepath);
+    }
+
+    public void runExportTasksCsv(Scanner sc) {
+        System.out.print("Output file: ");
+        String path = sc.nextLine().trim();
+        System.out.print("Max tasks: ");
+        int max = Integer.parseInt(sc.nextLine().trim());
+        try {
+            exportTasksToCsv(path, max);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public boolean wouldEnqueueSucceed(int kind, BigInteger dueAt) throws IOException {
+        if (kind < 0 || kind > TASK_KIND_DEADLINE) return false;
+        if (isPaused()) return false;
