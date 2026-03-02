@@ -383,3 +383,58 @@ public final class HaZZa {
         v.createdAt = new BigInteger(hex.substring(192, 256), 16);
         return v;
     }
+
+    public TaskView getTaskViewByIndex(BigInteger index) throws IOException {
+        String id = getTaskIdAt(index);
+        if (id == null) return null;
+        return getTaskView(id);
+    }
+
+    public ReminderView getReminderViewByIndex(BigInteger index) throws IOException {
+        String id = getReminderIdAt(index);
+        if (id == null) return null;
+        return getReminderView(id);
+    }
+
+    public SessionView getSessionViewByIndex(BigInteger index) throws IOException {
+        String id = getSessionIdAt(index);
+        if (id == null) return null;
+        return getSessionView(id);
+    }
+
+    public IntentView getIntentViewByIndex(BigInteger index) throws IOException {
+        String id = getIntentIdAt(index);
+        if (id == null) return null;
+        return getIntentView(id);
+    }
+
+    public boolean isPaused() throws IOException {
+        String data = SEL_IS_PAUSED;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return true;
+        return new BigInteger(result.substring(2), 16).signum() != 0;
+    }
+
+    public BigInteger getFeeWei() throws IOException {
+        String data = SEL_GET_FEE_WEI;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getMaxTasksPerUser() throws IOException {
+        String data = SEL_GET_MAX_TASKS_PER_USER;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getMaxRemindersPerUser() throws IOException {
+        String data = SEL_GET_MAX_REMINDERS_PER_USER;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
