@@ -1593,3 +1593,58 @@ public final class HaZZa {
             System.out.println("35. Tasks due before timestamp");
             System.out.println("36. Pending/unfired counts");
             System.out.println("37. Quick summary");
+            System.out.println("38. Tasks by kind");
+            System.out.println("39. Reminders trigger before timestamp");
+            System.out.println("40. List tasks with human time");
+            System.out.println("41. Complete task (build calldata)");
+            System.out.println("42. Cancel task (build calldata)");
+            System.out.println("43. Submit feedback (build calldata)");
+            System.out.println("44. Store preference (build calldata)");
+            System.out.println("45. Print all role addresses");
+            System.out.println("0. Quit");
+            System.out.print("Choice: ");
+            String line = sc.nextLine().trim();
+            int choice = line.isEmpty() ? -1 : Integer.parseInt(line);
+            switch (choice) {
+                case 0: break loop;
+                case 1: app.runListTasks(0, 32); break;
+                case 2: app.runListReminders(0, 32); break;
+                case 3: app.runListSessions(0, 32); break;
+                case 4:
+                    try {
+                        List<IntentView> list = app.getIntentViewsBatch(0, 32);
+                        System.out.println("Intents: " + list.size());
+                        for (IntentView v : list) System.out.println("  " + v.intentId + " owner=" + app.formatAddressShort(v.owner) + " type=" + v.intentType);
+                    } catch (IOException e) { System.err.println("Error: " + e.getMessage()); }
+                    break;
+                case 5: app.runPlatformStats(); break;
+                case 6: app.runConfig(); break;
+                case 7: app.runGetTask(sc); break;
+                case 8: app.runGetReminder(sc); break;
+                case 9: app.runGetSession(sc); break;
+                case 10: app.runEnqueueTaskInteractive(sc); break;
+                case 11: app.runSetReminderInteractive(sc); break;
+                case 12: app.runCreateSessionInteractive(sc); break;
+                case 13: app.runCloseSessionInteractive(sc); break;
+                case 14: app.runRegisterIntentInteractive(sc); break;
+                case 15: app.runDepositInteractive(sc); break;
+                case 16: app.runFeeInfo(); break;
+                case 17:
+                    System.out.print("RPC URL: ");
+                    app.setRpcUrl(sc.nextLine().trim());
+                    app.saveConfig();
+                    break;
+                case 18: app.printContractInfo(); break;
+                case 19:
+                    try {
+                        List<TaskView> list = app.getPendingTasksOnly(0, 32);
+                        System.out.println("Pending tasks: " + list.size());
+                        for (TaskView v : list) app.printTaskView(v);
+                    } catch (IOException e) { System.err.println("Error: " + e.getMessage()); }
+                    break;
+                case 20: app.runSnapshot(); break;
+                case 21: app.runExportTasksCsv(sc); break;
+                case 22: app.runWouldEnqueueSucceed(sc); break;
+                case 23: app.tryFallbackRpc(); break;
+                case 24: app.runListTasksByOwner(sc); break;
+                case 25: app.runListRemindersByOwner(sc); break;
