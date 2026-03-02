@@ -988,3 +988,58 @@ public final class HaZZa {
     public boolean wouldEnqueueSucceed(int kind, BigInteger dueAt) throws IOException {
         if (kind < 0 || kind > TASK_KIND_DEADLINE) return false;
         if (isPaused()) return false;
+        BigInteger fee = getFeeWei();
+        if (fee == null || fee.signum() < 0) return false;
+        BigInteger totalTasks = getTaskIdsLength();
+        if (totalTasks.compareTo(new BigInteger("4096")) >= 0) return false;
+        return true;
+    }
+
+    public void runWouldEnqueueSucceed(Scanner sc) {
+        System.out.print("Kind (0-3): ");
+        int kind = Integer.parseInt(sc.nextLine().trim());
+        System.out.print("Due timestamp: ");
+        BigInteger due = new BigInteger(sc.nextLine().trim());
+        try {
+            boolean ok = wouldEnqueueSucceed(kind, due);
+            System.out.println("Would enqueue succeed: " + ok);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    private String ethCallWithRetry(String to, String data) throws IOException {
+        IOException last = null;
+        for (int i = 0; i < MAX_RPC_RETRIES; i++) {
+            try {
+                return ethCall(to, data);
+            } catch (IOException e) {
+                last = e;
+                if (i < MAX_RPC_RETRIES - 1) {
+                    try { Thread.sleep(RPC_RETRY_DELAY_MS); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); throw new IOException(ie); }
+                }
+            }
+        }
+        throw last != null ? last : new IOException("RPC failed");
+    }
+
+    public List<TaskView> getTasksByOwner(String ownerAddr, int maxCount) throws IOException {
+        BigInteger total = getTaskIdsLength();
+        List<TaskView> out = new ArrayList<>();
+        for (BigInteger i = BigInteger.ZERO; i.compareTo(total) < 0 && out.size() < maxCount; i = i.add(BigInteger.ONE)) {
+            TaskView v = getTaskViewByIndex(i);
+            if (v != null && ownerAddr != null && ownerAddr.equalsIgnoreCase(v.owner)) out.add(v);
+        }
+        return out;
+    }
+
+    public List<ReminderView> getRemindersByOwner(String ownerAddr, int maxCount) throws IOException {
+        BigInteger total = getReminderIdsLength();
+        List<ReminderView> out = new ArrayList<>();
+        for (BigInteger i = BigInteger.ZERO; i.compareTo(total) < 0 && out.size() < maxCount; i = i.add(BigInteger.ONE)) {
+            ReminderView v = getReminderViewByIndex(i);
+            if (v != null && ownerAddr != null && ownerAddr.equalsIgnoreCase(v.owner)) out.add(v);
+        }
+        return out;
+    }
+
