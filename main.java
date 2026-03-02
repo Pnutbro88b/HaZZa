@@ -1538,3 +1538,58 @@ public final class HaZZa {
     public void runListIntents(int limit) {
         try {
             List<IntentView> list = getAllIntentViews(limit);
+            System.out.println("Intents: " + list.size());
+            for (IntentView v : list) {
+                System.out.println("  " + formatIdShort(v.intentId) + " owner=" + formatAddressShort(v.owner) + " type=" + v.intentType + " createdAt=" + v.createdAt);
+            }
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        HaZZa app = new HaZZa();
+        if (args.length > 0 && "--rpc".equals(args[0]) && args.length > 1) {
+            app.setRpcUrl(args[1]);
+        }
+        Scanner sc = new Scanner(System.in);
+        app.loadConfig();
+        loop: for (;;) {
+            System.out.println("\n--- HaZZa PA Client (Hariba) ---");
+            System.out.println("1. List tasks");
+            System.out.println("2. List reminders");
+            System.out.println("3. List sessions");
+            System.out.println("4. List intents");
+            System.out.println("5. Platform stats");
+            System.out.println("6. Config (fee, limits)");
+            System.out.println("7. Get task by ID");
+            System.out.println("8. Get reminder by ID");
+            System.out.println("9. Get session by ID");
+            System.out.println("10. Enqueue task (build calldata)");
+            System.out.println("11. Set reminder (build calldata)");
+            System.out.println("12. Create session (build calldata)");
+            System.out.println("13. Close session (build calldata)");
+            System.out.println("14. Register intent (build calldata)");
+            System.out.println("15. Deposit (build calldata)");
+            System.out.println("16. Fee info");
+            System.out.println("17. Set RPC URL");
+            System.out.println("18. Contract info");
+            System.out.println("19. Pending tasks only");
+            System.out.println("20. Snapshot (tasks + reminders)");
+            System.out.println("21. Export tasks CSV");
+            System.out.println("22. Would enqueue succeed?");
+            System.out.println("23. Try fallback RPC");
+            System.out.println("24. Tasks by owner");
+            System.out.println("25. Reminders by owner");
+            System.out.println("26. Sessions by owner");
+            System.out.println("27. Export reminders CSV");
+            System.out.println("28. Export sessions CSV");
+            System.out.println("29. Gas hints");
+            System.out.println("30. Last task/reminder/session IDs");
+            System.out.println("31. Balance of address");
+            System.out.println("32. Validate task/session ID format");
+            System.out.println("33. List tasks (short)");
+            System.out.println("34. Chain timestamp");
+            System.out.println("35. Tasks due before timestamp");
+            System.out.println("36. Pending/unfired counts");
+            System.out.println("37. Quick summary");
