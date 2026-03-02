@@ -878,3 +878,58 @@ public final class HaZZa {
         return all.stream().filter(v -> v.status == TASK_STATUS_COMPLETED).limit(limit).collect(Collectors.toList());
     }
 
+    public List<ReminderView> getUnfiredRemindersOnly(int offset, int limit) throws IOException {
+        List<ReminderView> all = getReminderViewsBatch(offset, limit * 2);
+        return all.stream().filter(v -> !v.fired).limit(limit).collect(Collectors.toList());
+    }
+
+    public List<SessionView> getOpenSessionsOnly(int offset, int limit) throws IOException {
+        List<SessionView> all = getSessionViewsBatch(offset, limit * 2);
+        return all.stream().filter(v -> v.closedAt.compareTo(BigInteger.ZERO) == 0).limit(limit).collect(Collectors.toList());
+    }
+
+    public BigInteger estimateFeeForEnqueueTask() throws IOException {
+        return getFeeWei();
+    }
+
+    public void runFeeInfo() {
+        try {
+            BigInteger fee = getFeeWei();
+            System.out.println("Task enqueue fee: " + fee + " wei (" + weiToEther(fee) + " ether)");
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static final String[] FALLBACK_RPC_URLS = {
+        "https://eth.llamarpc.com",
+        "https://rpc.ankr.com/eth",
+        "https://ethereum.publicnode.com",
+        "https://1rpc.io/eth",
+        "https://cloudflare-eth.com"
+    };
+
+    public boolean tryFallbackRpc() {
+        for (String url : FALLBACK_RPC_URLS) {
+            if (url.equals(rpcUrl)) continue;
+            setRpcUrl(url);
+            try {
+                getTaskIdsLength();
+                System.out.println("Fallback RPC OK: " + url);
+                return true;
+            } catch (IOException e) {}
+        }
+        return false;
+    }
+
+    public static final class Snapshot {
+        public final long timestamp;
+        public final List<TaskView> tasks;
+        public final List<ReminderView> reminders;
+        public final PlatformStats stats;
+
+        public Snapshot(long timestamp, List<TaskView> tasks, List<ReminderView> reminders, PlatformStats stats) {
+            this.timestamp = timestamp;
+            this.tasks = tasks != null ? new ArrayList<>(tasks) : Collections.emptyList();
+            this.reminders = reminders != null ? new ArrayList<>(reminders) : Collections.emptyList();
+            this.stats = stats;
