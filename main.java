@@ -1153,3 +1153,58 @@ public final class HaZZa {
     public BigInteger estimateGasCompleteTask() { return DEFAULT_GAS_COMPLETE_TASK; }
     public BigInteger estimateGasCancelTask() { return DEFAULT_GAS_CANCEL_TASK; }
     public BigInteger estimateGasSetReminder() { return DEFAULT_GAS_SET_REMINDER; }
+    public BigInteger estimateGasCreateSession() { return DEFAULT_GAS_CREATE_SESSION; }
+    public BigInteger estimateGasCloseSession() { return DEFAULT_GAS_CLOSE_SESSION; }
+    public BigInteger estimateGasRegisterIntent() { return DEFAULT_GAS_REGISTER_INTENT; }
+    public BigInteger estimateGasDeposit() { return DEFAULT_GAS_DEPOSIT; }
+
+    public void printGasHints() {
+        System.out.println("Gas hints (approx): enqueueTask=" + estimateGasEnqueueTask() + " completeTask=" + estimateGasCompleteTask()
+            + " cancelTask=" + estimateGasCancelTask() + " setReminder=" + estimateGasSetReminder()
+            + " createSession=" + estimateGasCreateSession() + " closeSession=" + estimateGasCloseSession()
+            + " registerIntent=" + estimateGasRegisterIntent() + " deposit=" + estimateGasDeposit());
+    }
+
+    public void runGasHints() {
+        printGasHints();
+    }
+
+    public String getLastTaskId() throws IOException {
+        BigInteger len = getTaskIdsLength();
+        if (len.compareTo(BigInteger.ZERO) == 0) return null;
+        return getTaskIdAt(len.subtract(BigInteger.ONE));
+    }
+
+    public String getLastReminderId() throws IOException {
+        BigInteger len = getReminderIdsLength();
+        if (len.compareTo(BigInteger.ZERO) == 0) return null;
+        return getReminderIdAt(len.subtract(BigInteger.ONE));
+    }
+
+    public String getLastSessionId() throws IOException {
+        BigInteger len = getSessionIdsLength();
+        if (len.compareTo(BigInteger.ZERO) == 0) return null;
+        return getSessionIdAt(len.subtract(BigInteger.ONE));
+    }
+
+    public void runLastIds() {
+        try {
+            System.out.println("Last task ID: " + getLastTaskId());
+            System.out.println("Last reminder ID: " + getLastReminderId());
+            System.out.println("Last session ID: " + getLastSessionId());
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public BigInteger getBalanceOf(String ownerAddr) throws IOException {
+        String sel = "0x70a08231";
+        String data = sel + padAddress(ownerAddr);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public void runBalanceOf(Scanner sc) {
+        System.out.print("Address (0x...): ");
