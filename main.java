@@ -603,3 +603,58 @@ public final class HaZZa {
         if (len.compareTo(BigInteger.valueOf(offset)) <= 0) return Collections.emptyList();
         int end = Math.min(offset + limit, len.intValue());
         int batch = Math.min(limit, HRB_VIEW_BATCH.intValue());
+        List<ReminderView> list = new ArrayList<>();
+        for (int i = offset; i < end && (i - offset) < batch; i++) {
+            ReminderView v = getReminderViewByIndex(BigInteger.valueOf(i));
+            if (v != null) list.add(v);
+        }
+        return list;
+    }
+
+    public List<SessionView> getSessionViewsBatch(int offset, int limit) throws IOException {
+        BigInteger len = getSessionIdsLength();
+        if (len.compareTo(BigInteger.valueOf(offset)) <= 0) return Collections.emptyList();
+        int end = Math.min(offset + limit, len.intValue());
+        int batch = Math.min(limit, HRB_VIEW_BATCH.intValue());
+        List<SessionView> list = new ArrayList<>();
+        for (int i = offset; i < end && (i - offset) < batch; i++) {
+            SessionView v = getSessionViewByIndex(BigInteger.valueOf(i));
+            if (v != null) list.add(v);
+        }
+        return list;
+    }
+
+    public List<IntentView> getIntentViewsBatch(int offset, int limit) throws IOException {
+        BigInteger len = getIntentIdsLength();
+        if (len.compareTo(BigInteger.valueOf(offset)) <= 0) return Collections.emptyList();
+        int end = Math.min(offset + limit, len.intValue());
+        int batch = Math.min(limit, HRB_VIEW_BATCH.intValue());
+        List<IntentView> list = new ArrayList<>();
+        for (int i = offset; i < end && (i - offset) < batch; i++) {
+            IntentView v = getIntentViewByIndex(BigInteger.valueOf(i));
+            if (v != null) list.add(v);
+        }
+        return list;
+    }
+
+    public static String taskStatusName(int status) {
+        switch (status) {
+            case TASK_STATUS_PENDING: return "PENDING";
+            case TASK_STATUS_COMPLETED: return "COMPLETED";
+            case TASK_STATUS_CANCELLED: return "CANCELLED";
+            default: return "UNKNOWN(" + status + ")";
+        }
+    }
+
+    public static String taskKindName(int kind) {
+        switch (kind) {
+            case TASK_KIND_GENERIC: return "GENERIC";
+            case TASK_KIND_CALL: return "CALL";
+            case TASK_KIND_MEETING: return "MEETING";
+            case TASK_KIND_DEADLINE: return "DEADLINE";
+            default: return "UNKNOWN(" + kind + ")";
+        }
+    }
+
+    public static boolean isValidAddress(String addr) {
+        return addr != null && ADDRESS_PATTERN.matcher(addr.trim()).matches();
