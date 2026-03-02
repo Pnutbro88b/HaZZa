@@ -1098,3 +1098,58 @@ public final class HaZZa {
         sb.append("reminderId,owner,triggerAt,linkedTaskId,fired,createdAt\n");
         for (ReminderView v : list) {
             sb.append(v.reminderId).append(",").append(v.owner).append(",").append(v.triggerAt).append(",")
+              .append(v.linkedTaskId).append(",").append(v.fired).append(",").append(v.createdAt).append("\n");
+        }
+        Files.writeString(Paths.get(filepath), sb.toString());
+        System.out.println("Exported " + list.size() + " reminders to " + filepath);
+    }
+
+    public void exportSessionsToCsv(String filepath, int maxSessions) throws IOException {
+        List<SessionView> list = getSessionViewsBatch(0, maxSessions);
+        StringBuilder sb = new StringBuilder();
+        sb.append("sessionId,owner,startedAt,closedAt,responseCount\n");
+        for (SessionView v : list) {
+            sb.append(v.sessionId).append(",").append(v.owner).append(",").append(v.startedAt).append(",")
+              .append(v.closedAt).append(",").append(v.responseCount).append("\n");
+        }
+        Files.writeString(Paths.get(filepath), sb.toString());
+        System.out.println("Exported " + list.size() + " sessions to " + filepath);
+    }
+
+    public void runExportRemindersCsv(Scanner sc) {
+        System.out.print("Output file: ");
+        String path = sc.nextLine().trim();
+        System.out.print("Max reminders: ");
+        int max = Integer.parseInt(sc.nextLine().trim());
+        try {
+            exportRemindersToCsv(path, max);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runExportSessionsCsv(Scanner sc) {
+        System.out.print("Output file: ");
+        String path = sc.nextLine().trim();
+        System.out.print("Max sessions: ");
+        int max = Integer.parseInt(sc.nextLine().trim());
+        try {
+            exportSessionsToCsv(path, max);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public static final BigInteger DEFAULT_GAS_ENQUEUE_TASK = new BigInteger("180000");
+    public static final BigInteger DEFAULT_GAS_COMPLETE_TASK = new BigInteger("80000");
+    public static final BigInteger DEFAULT_GAS_CANCEL_TASK = new BigInteger("60000");
+    public static final BigInteger DEFAULT_GAS_SET_REMINDER = new BigInteger("120000");
+    public static final BigInteger DEFAULT_GAS_CREATE_SESSION = new BigInteger("100000");
+    public static final BigInteger DEFAULT_GAS_CLOSE_SESSION = new BigInteger("60000");
+    public static final BigInteger DEFAULT_GAS_REGISTER_INTENT = new BigInteger("80000");
+    public static final BigInteger DEFAULT_GAS_DEPOSIT = new BigInteger("60000");
+
+    public BigInteger estimateGasEnqueueTask() { return DEFAULT_GAS_ENQUEUE_TASK; }
+    public BigInteger estimateGasCompleteTask() { return DEFAULT_GAS_COMPLETE_TASK; }
+    public BigInteger estimateGasCancelTask() { return DEFAULT_GAS_CANCEL_TASK; }
+    public BigInteger estimateGasSetReminder() { return DEFAULT_GAS_SET_REMINDER; }
