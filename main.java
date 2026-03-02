@@ -1208,3 +1208,58 @@ public final class HaZZa {
 
     public void runBalanceOf(Scanner sc) {
         System.out.print("Address (0x...): ");
+        String addr = sc.nextLine().trim();
+        if (!isValidAddress(addr)) { System.err.println("Invalid address"); return; }
+        try {
+            BigInteger bal = getBalanceOf(addr);
+            System.out.println("Balance: " + bal + " wei (" + weiToEther(bal) + " ether)");
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public boolean validateTaskIdFormat(String taskIdHex) {
+        return isValidBytes32(taskIdHex);
+    }
+
+    public boolean validateReminderIdFormat(String reminderIdHex) {
+        return isValidBytes32(reminderIdHex);
+    }
+
+    public boolean validateSessionIdFormat(String sessionIdHex) {
+        return isValidBytes32(sessionIdHex);
+    }
+
+    public void runValidateTaskId(Scanner sc) {
+        System.out.print("Task ID (0x...): ");
+        String id = sc.nextLine().trim();
+        System.out.println("Valid format: " + validateTaskIdFormat(id));
+    }
+
+    public void runValidateSessionId(Scanner sc) {
+        System.out.print("Session ID (0x...): ");
+        String id = sc.nextLine().trim();
+        System.out.println("Valid format: " + validateSessionIdFormat(id));
+    }
+
+    public String formatTaskKindShort(int kind) {
+        switch (kind) {
+            case TASK_KIND_GENERIC: return "gen";
+            case TASK_KIND_CALL: return "call";
+            case TASK_KIND_MEETING: return "meet";
+            case TASK_KIND_DEADLINE: return "dead";
+            default: return "?";
+        }
+    }
+
+    public String formatStatusShort(int status) {
+        switch (status) {
+            case TASK_STATUS_PENDING: return "pend";
+            case TASK_STATUS_COMPLETED: return "done";
+            case TASK_STATUS_CANCELLED: return "cancel";
+            default: return "?";
+        }
+    }
+
+    public void printTaskViewShort(TaskView v) {
+        if (v == null) return;
