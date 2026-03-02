@@ -273,3 +273,58 @@ public final class HaZZa {
         String result = extractResult(raw);
         if (result == null || result.length() < 66) return null;
         return "0x" + result.substring(2).toLowerCase();
+    }
+
+    public String getReminderIdAt(BigInteger index) throws IOException {
+        String data = SEL_GET_REMINDER_ID_AT + padUint256(index);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return null;
+        return "0x" + result.substring(2).toLowerCase();
+    }
+
+    public String getSessionIdAt(BigInteger index) throws IOException {
+        String data = SEL_GET_SESSION_ID_AT + padUint256(index);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return null;
+        return "0x" + result.substring(2).toLowerCase();
+    }
+
+    public String getIntentIdAt(BigInteger index) throws IOException {
+        String data = SEL_GET_INTENT_ID_AT + padUint256(index);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return null;
+        return "0x" + result.substring(2).toLowerCase();
+    }
+
+    public TaskView getTaskView(String taskIdHex) throws IOException {
+        String data = SEL_GET_TASK + padBytes32(taskIdHex);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResultBytes(raw);
+        TaskView v = decodeTaskView(result);
+        if (v != null) v.taskId = taskIdHex;
+        return v;
+    }
+
+    private TaskView decodeTaskView(String hex) {
+        if (hex == null || hex.length() < 2) return null;
+        hex = hex.replaceFirst("^0x", "");
+        if (hex.length() < 64 * 5) return null;
+        TaskView v = new TaskView();
+        v.owner = "0x" + hex.substring(64 + 24, 64 + 64);
+        v.kind = new BigInteger(hex.substring(128, 192), 16).intValue();
+        v.dueAt = new BigInteger(hex.substring(192, 256), 16);
+        v.status = new BigInteger(hex.substring(256, 320), 16).intValue();
+        v.createdAt = new BigInteger(hex.substring(320, 384), 16);
+        return v;
+    }
+
+    public ReminderView getReminderView(String reminderIdHex) throws IOException {
+        String data = SEL_GET_REMINDER + padBytes32(reminderIdHex);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResultBytes(raw);
+        ReminderView v = decodeReminderView(result);
+        if (v != null) v.reminderId = reminderIdHex;
+        return v;
