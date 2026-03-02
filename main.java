@@ -218,3 +218,58 @@ public final class HaZZa {
     private static String extractResult(String jsonResponse) {
         if (jsonResponse == null) return null;
         int i = jsonResponse.indexOf("\"result\":\"");
+        if (i < 0) return null;
+        i += 10;
+        int j = jsonResponse.indexOf("\"", i);
+        if (j < 0) return null;
+        return jsonResponse.substring(i, j);
+    }
+
+    private static String extractResultBytes(String jsonResponse) {
+        if (jsonResponse == null) return null;
+        int i = jsonResponse.indexOf("\"result\":\"0x");
+        if (i < 0) return null;
+        i += 11;
+        int j = jsonResponse.indexOf("\"", i);
+        if (j < 0) return null;
+        return jsonResponse.substring(i - 2, j);
+    }
+
+    public BigInteger getTaskIdsLength() throws IOException {
+        String data = SEL_GET_TASK_IDS_LENGTH;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getReminderIdsLength() throws IOException {
+        String data = SEL_GET_REMINDER_IDS_LENGTH;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getSessionIdsLength() throws IOException {
+        String data = SEL_GET_SESSION_IDS_LENGTH;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getIntentIdsLength() throws IOException {
+        String data = SEL_GET_INTENT_IDS_LENGTH;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public String getTaskIdAt(BigInteger index) throws IOException {
+        String data = SEL_GET_TASK_ID_AT + padUint256(index);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return null;
+        return "0x" + result.substring(2).toLowerCase();
