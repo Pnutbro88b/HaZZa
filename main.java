@@ -713,3 +713,58 @@ public final class HaZZa {
 
     public void runListReminders(int offset, int limit) {
         try {
+            List<ReminderView> list = getReminderViewsBatch(offset, limit);
+            System.out.println("Reminders (offset=" + offset + " limit=" + limit + ") count=" + list.size());
+            for (ReminderView v : list) printReminderView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runListSessions(int offset, int limit) {
+        try {
+            List<SessionView> list = getSessionViewsBatch(offset, limit);
+            System.out.println("Sessions (offset=" + offset + " limit=" + limit + ") count=" + list.size());
+            for (SessionView v : list) printSessionView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runPlatformStats() {
+        try {
+            PlatformStats s = getPlatformStats();
+            if (s == null) { System.out.println("(null stats)"); return; }
+            System.out.println("Tasks=" + s.taskCount + " Reminders=" + s.reminderCount + " Sessions=" + s.sessionCount + " Intents=" + s.intentCount + " DeployBlock=" + s.deployBlockNum + " Paused=" + s.paused);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runConfig() {
+        try {
+            ConfigView c = getConfig();
+            if (c == null) { System.out.println("(null config)"); return; }
+            System.out.println("MaxTasksPerUser=" + c.maxTasksPerUser + " MaxRemindersPerUser=" + c.maxRemindersPerUser + " FeeWei=" + c.feeWei + " Paused=" + c.paused);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runGetTask(Scanner sc) {
+        System.out.print("Task ID (0x...): ");
+        String id = sc.nextLine().trim();
+        try {
+            TaskView v = getTaskView(id);
+            printTaskView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runGetReminder(Scanner sc) {
+        System.out.print("Reminder ID (0x...): ");
+        String id = sc.nextLine().trim();
+        try {
+            ReminderView v = getReminderView(id);
+            printReminderView(v);
