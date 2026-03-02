@@ -768,3 +768,58 @@ public final class HaZZa {
         try {
             ReminderView v = getReminderView(id);
             printReminderView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runGetSession(Scanner sc) {
+        System.out.print("Session ID (0x...): ");
+        String id = sc.nextLine().trim();
+        try {
+            SessionView v = getSessionView(id);
+            printSessionView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runEnqueueTaskInteractive(Scanner sc) {
+        System.out.print("Task kind (0=generic 1=call 2=meeting 3=deadline): ");
+        int kind = Integer.parseInt(sc.nextLine().trim());
+        System.out.print("Due timestamp: ");
+        BigInteger dueAt = new BigInteger(sc.nextLine().trim());
+        String data = buildEnqueueTaskData(kind, dueAt);
+        try {
+            BigInteger fee = getFeeWei();
+            System.out.println("Fee (wei): " + fee + " (" + weiToEther(fee) + " ether)");
+        } catch (IOException e) {}
+        System.out.println("Calldata: " + data.substring(0, Math.min(80, data.length())) + "...");
+        if (!hasPrivateKey()) System.out.println("Set private key to send transaction.");
+    }
+
+    public void runSetReminderInteractive(Scanner sc) {
+        System.out.print("Trigger timestamp: ");
+        BigInteger triggerAt = new BigInteger(sc.nextLine().trim());
+        System.out.print("Linked task ID (0x... or 0): ");
+        String linked = sc.nextLine().trim();
+        if (linked.isEmpty()) linked = "0x" + "0".repeat(64);
+        String data = buildSetReminderData(triggerAt, linked);
+        System.out.println("Calldata: " + data.substring(0, Math.min(80, data.length())) + "...");
+    }
+
+    public void runCreateSessionInteractive(Scanner sc) {
+        String data = buildCreateSessionData();
+        System.out.println("Calldata: " + data);
+        if (!hasPrivateKey()) System.out.println("Set private key to send transaction.");
+    }
+
+    public void runCloseSessionInteractive(Scanner sc) {
+        System.out.print("Session ID (0x...): ");
+        String id = sc.nextLine().trim();
+        String data = buildCloseSessionData(id);
+        System.out.println("Calldata: " + data);
+    }
+
+    public void runRegisterIntentInteractive(Scanner sc) {
+        System.out.print("Intent type (0-7): ");
