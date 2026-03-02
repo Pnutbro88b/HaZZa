@@ -163,3 +163,58 @@ public final class HaZZa {
     private static String padLeft(String hex, int bytesLen) {
         int len = bytesLen * 2;
         if (hex == null) hex = "0";
+        hex = hex.replaceFirst("^0x", "");
+        if (hex.length() >= len) return hex.substring(hex.length() - len);
+        return "0".repeat(len - hex.length()) + hex;
+    }
+
+    private static String padAddress(String addr) {
+        if (addr == null) return padLeft("0", 20);
+        addr = addr.replaceFirst("^0x", "");
+        return padLeft(addr, 20);
+    }
+
+    private static String padBytes32(String h) {
+        if (h == null) h = "0";
+        h = h.replaceFirst("^0x", "");
+        return padLeft(h, 32);
+    }
+
+    private static String padUint256(BigInteger n) {
+        if (n == null) n = BigInteger.ZERO;
+        return padLeft(n.toString(16), 32);
+    }
+
+    private static String encodeBool(boolean b) {
+        return padLeft(b ? "1" : "0", 32);
+    }
+
+    private String ethCall(String to, String data) throws IOException {
+        String body = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_call\",\"params\":[{\"to\":\"" + to + "\",\"data\":\"" + data + "\"},\"latest\"],\"id\":1}";
+        return postJson(rpcUrl, body);
+    }
+
+    private String postJson(String urlString, String jsonBody) throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(jsonBody.getBytes(StandardCharsets.UTF_8));
+        }
+        int code = conn.getResponseCode();
+        if (code != 200) {
+            try (InputStream err = conn.getErrorStream()) {
+                String errBody = err != null ? new String(err.readAllBytes(), StandardCharsets.UTF_8) : "";
+                throw new IOException("HTTP " + code + " " + errBody);
+            }
+        }
+        try (InputStream is = conn.getInputStream()) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    private static String extractResult(String jsonResponse) {
+        if (jsonResponse == null) return null;
+        int i = jsonResponse.indexOf("\"result\":\"");
