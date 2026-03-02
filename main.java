@@ -1263,3 +1263,58 @@ public final class HaZZa {
 
     public void printTaskViewShort(TaskView v) {
         if (v == null) return;
+        System.out.println(formatIdShort(v.taskId) + " " + formatAddressShort(v.owner) + " " + formatTaskKindShort(v.kind) + " " + formatStatusShort(v.status) + " due=" + v.dueAt);
+    }
+
+    public void runListTasksShort(int offset, int limit) {
+        try {
+            List<TaskView> list = getTaskViewsBatch(offset, limit);
+            for (TaskView v : list) printTaskViewShort(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public long getServerTimeFromBlock() throws IOException {
+        String body = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_getBlockByNumber\",\"params\":[\"latest\",false],\"id\":1}";
+        String raw = postJson(rpcUrl, body);
+        if (raw == null) return 0;
+        int i = raw.indexOf("\"timestamp\":\"0x");
+        if (i < 0) return 0;
+        i += 15;
+        int j = raw.indexOf("\"", i);
+        if (j < 0) return 0;
+        String hex = raw.substring(i, j);
+        return new BigInteger(hex, 16).longValue();
+    }
+
+    public void runServerTime() {
+        try {
+            long t = getServerTimeFromBlock();
+            System.out.println("Chain block timestamp (approx): " + t + " (" + new Date(t * 1000L) + ")");
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public List<TaskView> getTasksDueBefore(BigInteger timestamp, int maxCount) throws IOException {
+        List<TaskView> all = getTaskViewsBatch(0, maxCount * 2);
+        return all.stream().filter(v -> v.dueAt != null && v.dueAt.compareTo(timestamp) <= 0 && v.status == TASK_STATUS_PENDING).limit(maxCount).collect(Collectors.toList());
+    }
+
+    public void runTasksDueBefore(Scanner sc) {
+        System.out.print("Timestamp: ");
+        BigInteger ts = new BigInteger(sc.nextLine().trim());
+        try {
+            List<TaskView> list = getTasksDueBefore(ts, 32);
+            System.out.println("Tasks due before " + ts + ": " + list.size());
+            for (TaskView v : list) printTaskView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public int countPendingTasks() throws IOException {
+        List<TaskView> all = getTaskViewsBatch(0, 256);
+        return (int) all.stream().filter(v -> v.status == TASK_STATUS_PENDING).count();
+    }
