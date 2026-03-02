@@ -1043,3 +1043,58 @@ public final class HaZZa {
         return out;
     }
 
+    public List<SessionView> getSessionsByOwner(String ownerAddr, int maxCount) throws IOException {
+        BigInteger total = getSessionIdsLength();
+        List<SessionView> out = new ArrayList<>();
+        for (BigInteger i = BigInteger.ZERO; i.compareTo(total) < 0 && out.size() < maxCount; i = i.add(BigInteger.ONE)) {
+            SessionView v = getSessionViewByIndex(i);
+            if (v != null && ownerAddr != null && ownerAddr.equalsIgnoreCase(v.owner)) out.add(v);
+        }
+        return out;
+    }
+
+    public void runListTasksByOwner(Scanner sc) {
+        System.out.print("Owner address (0x...): ");
+        String addr = sc.nextLine().trim();
+        if (!isValidAddress(addr)) { System.err.println("Invalid address"); return; }
+        try {
+            List<TaskView> list = getTasksByOwner(addr, 64);
+            System.out.println("Tasks for owner: " + list.size());
+            for (TaskView v : list) printTaskView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runListRemindersByOwner(Scanner sc) {
+        System.out.print("Owner address (0x...): ");
+        String addr = sc.nextLine().trim();
+        if (!isValidAddress(addr)) { System.err.println("Invalid address"); return; }
+        try {
+            List<ReminderView> list = getRemindersByOwner(addr, 64);
+            System.out.println("Reminders for owner: " + list.size());
+            for (ReminderView v : list) printReminderView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runListSessionsByOwner(Scanner sc) {
+        System.out.print("Owner address (0x...): ");
+        String addr = sc.nextLine().trim();
+        if (!isValidAddress(addr)) { System.err.println("Invalid address"); return; }
+        try {
+            List<SessionView> list = getSessionsByOwner(addr, 64);
+            System.out.println("Sessions for owner: " + list.size());
+            for (SessionView v : list) printSessionView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void exportRemindersToCsv(String filepath, int maxReminders) throws IOException {
+        List<ReminderView> list = getReminderViewsBatch(0, maxReminders);
+        StringBuilder sb = new StringBuilder();
+        sb.append("reminderId,owner,triggerAt,linkedTaskId,fired,createdAt\n");
+        for (ReminderView v : list) {
+            sb.append(v.reminderId).append(",").append(v.owner).append(",").append(v.triggerAt).append(",")
