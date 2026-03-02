@@ -658,3 +658,58 @@ public final class HaZZa {
 
     public static boolean isValidAddress(String addr) {
         return addr != null && ADDRESS_PATTERN.matcher(addr.trim()).matches();
+    }
+
+    public static boolean isValidBytes32(String id) {
+        return id != null && BYTES32_PATTERN.matcher(id.replaceFirst("^0x", "0x").trim()).matches();
+    }
+
+    public static String weiToEther(BigInteger wei) {
+        if (wei == null) return "0";
+        BigInteger[] divRem = wei.divideAndRemainder(WEI_PER_ETHER);
+        if (divRem[1].signum() == 0) return divRem[0].toString();
+        String frac = divRem[1].toString();
+        frac = "0".repeat(Math.max(0, 18 - frac.length())) + frac;
+        return divRem[0] + "." + frac.replaceFirst("0+$", "");
+    }
+
+    public static String formatIdShort(String id) {
+        if (id == null || id.length() < 10) return id;
+        return id.substring(0, 10) + "..." + id.substring(id.length() - 8);
+    }
+
+    public static String formatAddressShort(String addr) {
+        if (addr == null || addr.length() < 10) return addr;
+        return addr.substring(0, 6) + "..." + addr.substring(addr.length() - 4);
+    }
+
+    public void printTaskView(TaskView v) {
+        if (v == null) { System.out.println("(null task)"); return; }
+        System.out.printf("  taskId=%s owner=%s kind=%s dueAt=%s status=%s%n",
+            formatIdShort(v.taskId), formatAddressShort(v.owner), taskKindName(v.kind), v.dueAt, taskStatusName(v.status));
+    }
+
+    public void printReminderView(ReminderView v) {
+        if (v == null) { System.out.println("(null reminder)"); return; }
+        System.out.printf("  reminderId=%s owner=%s triggerAt=%s fired=%s%n",
+            formatIdShort(v.reminderId), formatAddressShort(v.owner), v.triggerAt, v.fired);
+    }
+
+    public void printSessionView(SessionView v) {
+        if (v == null) { System.out.println("(null session)"); return; }
+        System.out.printf("  sessionId=%s owner=%s started=%s closed=%s responses=%s%n",
+            formatIdShort(v.sessionId), formatAddressShort(v.owner), v.startedAt, v.closedAt, v.responseCount);
+    }
+
+    public void runListTasks(int offset, int limit) {
+        try {
+            List<TaskView> list = getTaskViewsBatch(offset, limit);
+            System.out.println("Tasks (offset=" + offset + " limit=" + limit + ") count=" + list.size());
+            for (TaskView v : list) printTaskView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runListReminders(int offset, int limit) {
+        try {
