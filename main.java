@@ -1648,3 +1648,31 @@ public final class HaZZa {
                 case 23: app.tryFallbackRpc(); break;
                 case 24: app.runListTasksByOwner(sc); break;
                 case 25: app.runListRemindersByOwner(sc); break;
+                case 26: app.runListSessionsByOwner(sc); break;
+                case 27: app.runExportRemindersCsv(sc); break;
+                case 28: app.runExportSessionsCsv(sc); break;
+                case 29: app.runGasHints(); break;
+                case 30: app.runLastIds(); break;
+                case 31: app.runBalanceOf(sc); break;
+                case 32: app.runValidateTaskId(sc); break;
+                case 33: app.runListTasksShort(0, 32); break;
+                case 34: app.runServerTime(); break;
+                case 35: app.runTasksDueBefore(sc); break;
+                case 36: app.runCounts(); break;
+                case 37: app.runQuickSummary(); break;
+                case 38: app.runListTasksByKind(sc); break;
+                case 39: app.runRemindersTriggerBefore(sc); break;
+                case 40: app.runListTasksWithTime(0, 32); break;
+                case 41: app.runCompleteTaskInteractive(sc); break;
+                case 42: app.runCancelTaskInteractive(sc); break;
+                case 43: app.runSubmitFeedbackInteractive(sc); break;
+                case 44: app.runStorePreferenceInteractive(sc); break;
+                case 45: app.runPrintRoles(); break;
+                default: System.out.println("Unknown option.");
+            }
+        }
+        app.saveConfig();
+        sc.close();
+        System.out.println("HaZZa done.");
+    }
+}
