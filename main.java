@@ -438,3 +438,58 @@ public final class HaZZa {
         String result = extractResult(raw);
         if (result == null || result.length() < 66) return BigInteger.ZERO;
         return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getVaultBalance() throws IOException {
+        String data = SEL_GET_VAULT_BALANCE;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public BigInteger getDeployBlock() throws IOException {
+        String data = SEL_GET_DEPLOY_BLOCK;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
+        return new BigInteger(result.substring(2), 16);
+    }
+
+    public PlatformStats getPlatformStats() throws IOException {
+        String data = SEL_GET_PLATFORM_STATS;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResultBytes(raw);
+        if (result == null || result.length() < 2) return null;
+        result = result.replaceFirst("^0x", "");
+        if (result.length() < 64 * 6) return null;
+        PlatformStats s = new PlatformStats();
+        s.taskCount = new BigInteger(result.substring(0, 64), 16);
+        s.reminderCount = new BigInteger(result.substring(64, 128), 16);
+        s.sessionCount = new BigInteger(result.substring(128, 192), 16);
+        s.intentCount = new BigInteger(result.substring(192, 256), 16);
+        s.deployBlockNum = new BigInteger(result.substring(256, 320), 16);
+        s.paused = new BigInteger(result.substring(320, 384), 16).signum() != 0;
+        return s;
+    }
+
+    public ConfigView getConfig() throws IOException {
+        String data = SEL_GET_CONFIG;
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResultBytes(raw);
+        if (result == null || result.length() < 2) return null;
+        result = result.replaceFirst("^0x", "");
+        if (result.length() < 64 * 4) return null;
+        ConfigView c = new ConfigView();
+        c.maxTasksPerUser = new BigInteger(result.substring(0, 64), 16);
+        c.maxRemindersPerUser = new BigInteger(result.substring(64, 128), 16);
+        c.feeWei = new BigInteger(result.substring(128, 192), 16);
+        c.paused = new BigInteger(result.substring(192, 256), 16).signum() != 0;
+        return c;
+    }
+
+    public BigInteger getTaskCountForOwner(String ownerAddr) throws IOException {
+        String data = SEL_GET_TASK_COUNT_FOR_OWNER + padAddress(ownerAddr);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResult(raw);
+        if (result == null || result.length() < 66) return BigInteger.ZERO;
