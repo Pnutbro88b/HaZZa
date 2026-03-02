@@ -1428,3 +1428,58 @@ public final class HaZZa {
             for (ReminderView v : list) printReminderView(v);
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public static String formatTimestamp(BigInteger ts) {
+        if (ts == null) return "null";
+        try {
+            long t = ts.longValueExact();
+            if (t > 0 && t < 1L << 62) return new Date(t * 1000L).toString();
+        } catch (Exception e) {}
+        return ts.toString();
+    }
+
+    public void printTaskViewWithTime(TaskView v) {
+        if (v == null) return;
+        System.out.printf("  %s owner=%s kind=%s status=%s due=%s (%s) created=%s (%s)%n",
+            formatIdShort(v.taskId), formatAddressShort(v.owner), taskKindName(v.kind), taskStatusName(v.status),
+            v.dueAt, formatTimestamp(v.dueAt), v.createdAt, formatTimestamp(v.createdAt));
+    }
+
+    public void runListTasksWithTime(int offset, int limit) {
+        try {
+            List<TaskView> list = getTaskViewsBatch(offset, limit);
+            for (TaskView v : list) printTaskViewWithTime(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runCompleteTaskInteractive(Scanner sc) {
+        System.out.print("Task ID (0x...): ");
+        String id = sc.nextLine().trim();
+        String data = buildCompleteTaskData(id);
+        System.out.println("Calldata: " + data);
+        if (!hasPrivateKey()) System.out.println("Set private key to send transaction.");
+    }
+
+    public void runCancelTaskInteractive(Scanner sc) {
+        System.out.print("Task ID (0x...): ");
+        String id = sc.nextLine().trim();
+        String data = buildCancelTaskData(id);
+        System.out.println("Calldata: " + data);
+        if (!hasPrivateKey()) System.out.println("Set private key to send transaction.");
+    }
+
+    public void runSubmitFeedbackInteractive(Scanner sc) {
+        System.out.print("Ref ID (bytes32 hex 0x...): ");
+        String refId = sc.nextLine().trim();
+        System.out.print("Rating (1-5): ");
+        int rating = Integer.parseInt(sc.nextLine().trim());
+        String data = buildSubmitFeedbackData(refId, rating);
+        System.out.println("Calldata: " + data.substring(0, Math.min(80, data.length())) + "...");
+    }
+
+    public void runStorePreferenceInteractive(Scanner sc) {
+        System.out.print("Preference key (string, will be hashed): ");
