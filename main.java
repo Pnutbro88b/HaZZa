@@ -328,3 +328,58 @@ public final class HaZZa {
         ReminderView v = decodeReminderView(result);
         if (v != null) v.reminderId = reminderIdHex;
         return v;
+    }
+
+    private ReminderView decodeReminderView(String hex) {
+        if (hex == null || hex.length() < 2) return null;
+        hex = hex.replaceFirst("^0x", "");
+        if (hex.length() < 64 * 5) return null;
+        ReminderView v = new ReminderView();
+        v.owner = "0x" + hex.substring(64 + 24, 64 + 64);
+        v.triggerAt = new BigInteger(hex.substring(128, 192), 16);
+        v.linkedTaskId = "0x" + hex.substring(192, 256);
+        v.fired = new BigInteger(hex.substring(256, 320), 16).signum() != 0;
+        v.createdAt = new BigInteger(hex.substring(320, 384), 16);
+        return v;
+    }
+
+    public SessionView getSessionView(String sessionIdHex) throws IOException {
+        String data = SEL_GET_SESSION + padBytes32(sessionIdHex);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResultBytes(raw);
+        SessionView v = decodeSessionView(result);
+        if (v != null) v.sessionId = sessionIdHex;
+        return v;
+    }
+
+    private SessionView decodeSessionView(String hex) {
+        if (hex == null || hex.length() < 2) return null;
+        hex = hex.replaceFirst("^0x", "");
+        if (hex.length() < 64 * 4) return null;
+        SessionView v = new SessionView();
+        v.owner = "0x" + hex.substring(64 + 24, 64 + 64);
+        v.startedAt = new BigInteger(hex.substring(128, 192), 16);
+        v.closedAt = new BigInteger(hex.substring(192, 256), 16);
+        v.responseCount = new BigInteger(hex.substring(256, 320), 16);
+        return v;
+    }
+
+    public IntentView getIntentView(String intentIdHex) throws IOException {
+        String data = SEL_GET_INTENT + padBytes32(intentIdHex);
+        String raw = ethCall(HARIBA_CONTRACT, data);
+        String result = extractResultBytes(raw);
+        IntentView v = decodeIntentView(result);
+        if (v != null) v.intentId = intentIdHex;
+        return v;
+    }
+
+    private IntentView decodeIntentView(String hex) {
+        if (hex == null || hex.length() < 2) return null;
+        hex = hex.replaceFirst("^0x", "");
+        if (hex.length() < 64 * 3) return null;
+        IntentView v = new IntentView();
+        v.owner = "0x" + hex.substring(64 + 24, 64 + 64);
+        v.intentType = new BigInteger(hex.substring(128, 192), 16).intValue();
+        v.createdAt = new BigInteger(hex.substring(192, 256), 16);
+        return v;
+    }
