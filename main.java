@@ -108,3 +108,58 @@ public final class HaZZa {
         public BigInteger createdAt;
         @Override
         public String toString() {
+            return String.format("TaskView{id=%s owner=%s kind=%d dueAt=%s status=%d}", taskId, owner, kind, dueAt, status);
+        }
+    }
+
+    public static final class ReminderView {
+        public String reminderId;
+        public String owner;
+        public BigInteger triggerAt;
+        public String linkedTaskId;
+        public boolean fired;
+        public BigInteger createdAt;
+        @Override
+        public String toString() {
+            return String.format("ReminderView{id=%s owner=%s triggerAt=%s fired=%s}", reminderId, owner, triggerAt, fired);
+        }
+    }
+
+    public static final class SessionView {
+        public String sessionId;
+        public String owner;
+        public BigInteger startedAt;
+        public BigInteger closedAt;
+        public BigInteger responseCount;
+        @Override
+        public String toString() {
+            return String.format("SessionView{id=%s owner=%s started=%s closed=%s responses=%s}", sessionId, owner, startedAt, closedAt, responseCount);
+        }
+    }
+
+    public static final class IntentView {
+        public String intentId;
+        public String owner;
+        public int intentType;
+        public BigInteger createdAt;
+    }
+
+    public static final class PlatformStats {
+        public BigInteger taskCount;
+        public BigInteger reminderCount;
+        public BigInteger sessionCount;
+        public BigInteger intentCount;
+        public BigInteger deployBlockNum;
+        public boolean paused;
+    }
+
+    public static final class ConfigView {
+        public BigInteger maxTasksPerUser;
+        public BigInteger maxRemindersPerUser;
+        public BigInteger feeWei;
+        public boolean paused;
+    }
+
+    private static String padLeft(String hex, int bytesLen) {
+        int len = bytesLen * 2;
+        if (hex == null) hex = "0";
