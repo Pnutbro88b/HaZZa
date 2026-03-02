@@ -548,3 +548,58 @@ public final class HaZZa {
         int len = value == null ? 0 : value.length;
         String valHex = value == null ? "" : bytesToHex(value);
         int padLen = ((len + 31) / 32) * 32 * 2;
+        if (valHex.length() < padLen) valHex = padLeft(valHex, padLen / 2);
+        return SEL_STORE_PREFERENCE + padBytes32(keyHashHex) + padUint256(BigInteger.valueOf(64)) + padUint256(BigInteger.valueOf(len)) + valHex;
+    }
+
+    public String buildRegisterIntentData(int intentType) {
+        return SEL_REGISTER_INTENT + padUint256(BigInteger.valueOf(intentType));
+    }
+
+    public String buildSubmitFeedbackData(String refIdHex, int rating) {
+        return SEL_SUBMIT_FEEDBACK + padBytes32(refIdHex) + padUint256(BigInteger.valueOf(rating));
+    }
+
+    public String buildDepositData() {
+        return SEL_DEPOSIT;
+    }
+
+    public String prefKeyHash(String key) {
+        return sha256Hex(key.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String bytesToHex(byte[] b) {
+        if (b == null) return "";
+        StringBuilder sb = new StringBuilder(b.length * 2);
+        for (byte x : b) sb.append(String.format("%02x", x));
+        return sb.toString();
+    }
+
+    private static String sha256Hex(byte[] input) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] h = md.digest(input);
+            return "0x" + bytesToHex(h);
+        } catch (Exception e) {
+            return "0x" + "0".repeat(64);
+        }
+    }
+
+    public List<TaskView> getTaskViewsBatch(int offset, int limit) throws IOException {
+        BigInteger len = getTaskIdsLength();
+        if (len.compareTo(BigInteger.valueOf(offset)) <= 0) return Collections.emptyList();
+        int end = Math.min(offset + limit, len.intValue());
+        int batch = Math.min(limit, HRB_VIEW_BATCH.intValue());
+        List<TaskView> list = new ArrayList<>();
+        for (int i = offset; i < end && (i - offset) < batch; i++) {
+            TaskView v = getTaskViewByIndex(BigInteger.valueOf(i));
+            if (v != null) list.add(v);
+        }
+        return list;
+    }
+
+    public List<ReminderView> getReminderViewsBatch(int offset, int limit) throws IOException {
+        BigInteger len = getReminderIdsLength();
+        if (len.compareTo(BigInteger.valueOf(offset)) <= 0) return Collections.emptyList();
+        int end = Math.min(offset + limit, len.intValue());
+        int batch = Math.min(limit, HRB_VIEW_BATCH.intValue());
