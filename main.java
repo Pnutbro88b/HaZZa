@@ -1483,3 +1483,58 @@ public final class HaZZa {
 
     public void runStorePreferenceInteractive(Scanner sc) {
         System.out.print("Preference key (string, will be hashed): ");
+        String key = sc.nextLine().trim();
+        System.out.print("Value (hex or text): ");
+        String valStr = sc.nextLine().trim();
+        byte[] value = valStr.getBytes(StandardCharsets.UTF_8);
+        String keyHash = prefKeyHash(key);
+        String data = buildStorePreferenceData(keyHash, value);
+        System.out.println("Key hash: " + keyHash);
+        System.out.println("Calldata length: " + data.length() / 2 + " bytes");
+    }
+
+    public BigInteger getVaultBalanceSafe() {
+        try {
+            return getVaultBalance();
+        } catch (IOException e) {
+            return BigInteger.ZERO;
+        }
+    }
+
+    public boolean isPausedSafe() {
+        try {
+            return isPaused();
+        } catch (IOException e) {
+            return true;
+        }
+    }
+
+    public void runVaultBalance() {
+        try {
+            BigInteger bal = getVaultBalance();
+            System.out.println("Vault balance: " + bal + " wei (" + weiToEther(bal) + " ether)");
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public void runDeployBlock() {
+        try {
+            BigInteger block = getDeployBlock();
+            System.out.println("Deploy block: " + block);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public int getIntentIdsLengthInt() throws IOException {
+        return getIntentIdsLength().min(BigInteger.valueOf(Integer.MAX_VALUE)).intValue();
+    }
+
+    public List<IntentView> getAllIntentViews(int max) throws IOException {
+        return getIntentViewsBatch(0, max);
+    }
+
+    public void runListIntents(int limit) {
+        try {
+            List<IntentView> list = getAllIntentViews(limit);
