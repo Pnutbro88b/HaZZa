@@ -1373,3 +1373,58 @@ public final class HaZZa {
         } catch (IOException e) {
             return BigInteger.ZERO;
         }
+    }
+
+    public BigInteger getSessionIdsLengthSafe() {
+        try {
+            return getSessionIdsLength();
+        } catch (IOException e) {
+            return BigInteger.ZERO;
+        }
+    }
+
+    public void runQuickSummary() {
+        try {
+            BigInteger tasks = getTaskIdsLength();
+            BigInteger reminders = getReminderIdsLength();
+            BigInteger sessions = getSessionIdsLength();
+            BigInteger intents = getIntentIdsLength();
+            boolean paused = isPaused();
+            BigInteger fee = getFeeWei();
+            System.out.println("Tasks=" + tasks + " Reminders=" + reminders + " Sessions=" + sessions + " Intents=" + intents + " Paused=" + paused + " FeeWei=" + fee);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public List<TaskView> getTasksByKind(int kind, int offset, int limit) throws IOException {
+        List<TaskView> all = getTaskViewsBatch(offset, limit * 2);
+        return all.stream().filter(v -> v.kind == kind).limit(limit).collect(Collectors.toList());
+    }
+
+    public void runListTasksByKind(Scanner sc) {
+        System.out.print("Kind (0=generic 1=call 2=meeting 3=deadline): ");
+        int kind = Integer.parseInt(sc.nextLine().trim());
+        try {
+            List<TaskView> list = getTasksByKind(kind, 0, 32);
+            System.out.println("Tasks kind=" + kind + ": " + list.size());
+            for (TaskView v : list) printTaskView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public List<ReminderView> getRemindersTriggerBefore(BigInteger timestamp, int maxCount) throws IOException {
+        List<ReminderView> all = getReminderViewsBatch(0, maxCount * 2);
+        return all.stream().filter(v -> !v.fired && v.triggerAt != null && v.triggerAt.compareTo(timestamp) <= 0).limit(maxCount).collect(Collectors.toList());
+    }
+
+    public void runRemindersTriggerBefore(Scanner sc) {
+        System.out.print("Timestamp: ");
+        BigInteger ts = new BigInteger(sc.nextLine().trim());
+        try {
+            List<ReminderView> list = getRemindersTriggerBefore(ts, 32);
+            System.out.println("Unfired reminders with triggerAt <= " + ts + ": " + list.size());
+            for (ReminderView v : list) printReminderView(v);
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
