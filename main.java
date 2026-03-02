@@ -1318,3 +1318,58 @@ public final class HaZZa {
         List<TaskView> all = getTaskViewsBatch(0, 256);
         return (int) all.stream().filter(v -> v.status == TASK_STATUS_PENDING).count();
     }
+
+    public int countUnfiredReminders() throws IOException {
+        List<ReminderView> all = getReminderViewsBatch(0, 256);
+        return (int) all.stream().filter(v -> !v.fired).count();
+    }
+
+    public void runCounts() {
+        try {
+            System.out.println("Pending tasks (sample): " + countPendingTasks());
+            System.out.println("Unfired reminders (sample): " + countUnfiredReminders());
+        } catch (IOException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    public String getContractAddress() {
+        return HARIBA_CONTRACT;
+    }
+
+    public String getStewardAddress() { return HRB_STEWARD; }
+    public String getVaultAddress() { return HRB_VAULT; }
+    public String getOracleAddress() { return HRB_ORACLE; }
+    public String getRelayAddress() { return HRB_RELAY; }
+    public String getKeeperAddress() { return HRB_KEEPER; }
+    public String getCuratorAddress() { return HRB_CURATOR; }
+    public String getSentinelAddress() { return HRB_SENTINEL; }
+
+    public void printAllRoleAddresses() {
+        System.out.println("Steward:  " + HRB_STEWARD);
+        System.out.println("Vault:    " + HRB_VAULT);
+        System.out.println("Oracle:   " + HRB_ORACLE);
+        System.out.println("Relay:    " + HRB_RELAY);
+        System.out.println("Keeper:   " + HRB_KEEPER);
+        System.out.println("Curator:  " + HRB_CURATOR);
+        System.out.println("Sentinel: " + HRB_SENTINEL);
+    }
+
+    public void runPrintRoles() {
+        printAllRoleAddresses();
+    }
+
+    public BigInteger getTaskIdsLengthSafe() {
+        try {
+            return getTaskIdsLength();
+        } catch (IOException e) {
+            return BigInteger.ZERO;
+        }
+    }
+
+    public BigInteger getReminderIdsLengthSafe() {
+        try {
+            return getReminderIdsLength();
+        } catch (IOException e) {
+            return BigInteger.ZERO;
+        }
