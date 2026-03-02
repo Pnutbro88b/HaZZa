@@ -53,3 +53,58 @@ public final class HaZZa {
     private static final String SEL_GET_REMINDER_ID_AT = "0xa1e5c8f2";
     private static final String SEL_GET_SESSION_IDS_LENGTH = "0x7b3d9e4a";
     private static final String SEL_GET_SESSION_ID_AT = "0xc6f1a2e8";
+    private static final String SEL_GET_INTENT_IDS_LENGTH = "0xe9b4d7c0";
+    private static final String SEL_GET_INTENT_ID_AT = "0x5f8a2c1e";
+    private static final String SEL_IS_PAUSED = "0x2e7b9d4f";
+    private static final String SEL_GET_FEE_WEI = "0x8a3c6e1b";
+    private static final String SEL_GET_MAX_TASKS_PER_USER = "0x1d5f9a2c";
+    private static final String SEL_GET_MAX_REMINDERS_PER_USER = "0x4e8b3c7a";
+    private static final String SEL_GET_TASK_SUMMARIES_BATCH = "0xb2a5e8d1";
+    private static final String SEL_GET_REMINDER_SUMMARIES_BATCH = "0x6c9f1e4b";
+    private static final String SEL_GET_SESSION_SUMMARIES_BATCH = "0x3a7d2f8e";
+    private static final String SEL_GET_TASK_VIEW_BY_INDEX = "0xf4b8c2a6";
+    private static final String SEL_GET_REMINDER_VIEW_BY_INDEX = "0x9e1d5a7c";
+    private static final String SEL_GET_SESSION_VIEW_BY_INDEX = "0x2c6e8b3f";
+    private static final String SEL_GET_TASK_COUNT_FOR_OWNER = "0x7a4f2d9e";
+    private static final String SEL_GET_REMINDER_COUNT_FOR_OWNER = "0xe8b1c5a3";
+    private static final String SEL_GET_SESSION_COUNT_FOR_OWNER = "0x1b9d6f4c";
+    private static final String SEL_GET_RESPONSE_COUNT = "0x5c3e8a2d";
+    private static final String SEL_GET_RESPONSE_HASH = "0xa7f2d4b9";
+    private static final String SEL_GET_PREFERENCE = "0x4d8e1c6a";
+    private static final String SEL_GET_VAULT_BALANCE = "0x2f5a9b7e";
+    private static final String SEL_GET_DEPLOY_BLOCK = "0x8c1e4d3f";
+    private static final String SEL_GET_CONFIG = "0xb6a2f8c1";
+    private static final String SEL_VALIDATE_TASK_ID = "0x3e9d7b5a";
+    private static final String SEL_VALIDATE_REMINDER_ID = "0x1a4c8e2f";
+    private static final String SEL_VALIDATE_SESSION_ID = "0x7f2b6d9c";
+    private static final String SEL_ENQUEUE_TASK = "0xd4a1e8b2";
+    private static final String SEL_COMPLETE_TASK = "0x9c5f3a7e";
+    private static final String SEL_CANCEL_TASK = "0x2e8b1d6f";
+    private static final String SEL_SET_REMINDER = "0x6a4c9f2b";
+    private static final String SEL_CREATE_SESSION = "0xb8e2d5a1";
+    private static final String SEL_CLOSE_SESSION = "0x4f7c3e9a";
+    private static final String SEL_STORE_PREFERENCE = "0x1d6b8a4e";
+    private static final String SEL_REGISTER_INTENT = "0xa3f5c2d8";
+    private static final String SEL_SUBMIT_FEEDBACK = "0x8e2a7b4f";
+    private static final String SEL_DEPOSIT = "0xd0de0b6b";
+    private static final String SEL_PREF_KEY_HASH = "0x5b9e1c7a";
+
+    private String rpcUrl = DEFAULT_RPC;
+    private String privateKeyHex;
+
+    public HaZZa() {}
+
+    public void setRpcUrl(String url) { this.rpcUrl = url != null ? url : DEFAULT_RPC; }
+    public String getRpcUrl() { return rpcUrl; }
+    public void setPrivateKeyHex(String hex) { this.privateKeyHex = hex; }
+    public boolean hasPrivateKey() { return privateKeyHex != null && !privateKeyHex.isBlank(); }
+
+    public static final class TaskView {
+        public String taskId;
+        public String owner;
+        public int kind;
+        public BigInteger dueAt;
+        public int status;
+        public BigInteger createdAt;
+        @Override
+        public String toString() {
